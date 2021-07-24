@@ -1,20 +1,26 @@
-FROM alpine:edge
-MAINTAINER Arno0x0x - https://twitter.com/arno0x0x
+FROM alpine:3.14
+MAINTAINER Nilesh
 
-ADD ./entry_point.sh /
+ADD ./tor-socat.sh /
 
 RUN apk update \
 	&& apk upgrade  \
-	&& apk add socat \
-	&& apk add --update-cache \
-			--repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ \
-			--allow-untrusted --update tor \
+	&& apk add tor socat \
+    # && mkdir -p /var/log/supervisor \
 	&& rm -rf /var/cache/apk/* \
-	&& chmod +x /entry_point.sh
+	&& chmod +x /tor-socat.sh
+
+# ADD ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 ADD ./torrc /etc/tor/torrc
 
 
 EXPOSE 5000
 
-ENTRYPOINT ["/entry_point.sh"]
+
+# ENTRYPOINT ["/entry_point.sh"]
+ENTRYPOINT ["/tor-socat.sh"]
+
+# CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+
+# CMD tail -f /dev/null
